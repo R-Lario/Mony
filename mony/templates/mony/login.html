@@ -1,0 +1,39 @@
+{% extends "mony/layout.html" %}
+
+{% block title %}
+Login
+{% endblock %}
+
+{% block body %}
+<div class="row mt-5">
+    <div class="col col-sm-3 col-lg-4 d-none d-sm-block"></div>
+    <div class="col col-sm-6 col-lg-4">
+        <form method="post">
+            {% csrf_token %}
+            <!-- Email input -->
+            <div class="form-outline mb-4">
+                {{ form.email }}
+              <label class="form-label" for="form2Example1">{{ form.email.label_tag }}</label>     
+            </div>
+          
+            <!-- Password input -->
+            <div class="form-outline mb-4">
+              {{ form.password }}
+              <label class="form-label" for="form2Example2">{{ form.password.label_tag }}</label>
+            </div>
+          
+          
+            <!-- Submit button -->
+            <button type="submit" class="btn btn-primary btn-block mb-4">Sign in</button>
+          
+            <!-- Register buttons -->
+            <div class="text-center">
+              <p>Don't have an account? <a href="{% url 'mony:register' %}">Register</a></p>
+            </div>
+          </form>
+    </div>
+    <div class="col col-sm-3 col-lg-4 d-none d-sm-block"></div>
+
+</div>
+
+{% endblock %}

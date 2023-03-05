@@ -1,0 +1,12 @@
+html {
+    width: 100%;
+    height: 100%;
+}
+
+.row-striped:nth-of-type(odd){
+background-color: #efefef;
+}
+
+.row-striped:nth-of-type(even){
+background-color: #ffffff;
+}
