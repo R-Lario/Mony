@@ -535,7 +535,7 @@ function TransactionHistory(props) {
 }
 
 function GoogleDiagrams(props) {
-    google.charts.load('current', { 'packages': ['corechart'] });
+    google.charts.load('current', { 'packages': ['corechart', 'line'] });
 
     let [months, setMonths] = React.useState([]);
     let [selectedMonth, setSelectedMonth] = React.useState();

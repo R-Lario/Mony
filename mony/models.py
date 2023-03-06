@@ -66,7 +66,7 @@ class Transactions(models.Model):
 
 class SpendingCategories(models.Model):
     user_id = models.IntegerField(null=True)
-    category = models.CharField(max_length=32)
+    category = models.CharField(max_length=32, null=True)
 
     def __str__(self):
         return f"{self.user_id}: {self.category}"
