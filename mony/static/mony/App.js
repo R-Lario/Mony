@@ -434,18 +434,27 @@ function TransactionHistory(props) {
     React.useEffect(() => {
         if (requisitions.length > 0) {
             getAllTransactions();
+        } else {
+            setTransactions([]);
         }
     }, [requisitions]);
+
+    React.useEffect(() => {
+        if (transactions.length) {
+            props.googleDiagramsRefresh();
+        }
+    }, [transactions]);
 
     async function refresh() {
         let response = await fetch('/api/requisitions');
         let data = await response.json();
         getUserCategories()
         setRequisitions(data);
-
         if (props.googleDiagramsRefresh) {
             props.googleDiagramsRefresh();
         }
+
+
     }
 
     async function getAllTransactions() {
@@ -469,7 +478,6 @@ function TransactionHistory(props) {
     async function removeBankAccount(event) {
         let csrfToken = getCookie("csrftoken");
         let requisition_id = event.currentTarget.parentNode.parentNode.id;
-        console.log(requisition_id);
         let response = await fetch("/api/requisitions/" + requisition_id, {
             method: "DELETE",
             headers: {
@@ -477,7 +485,6 @@ function TransactionHistory(props) {
             }
         });
         let data = await response.json();
-        console.log(data);
 
         refresh();
     }
@@ -486,7 +493,11 @@ function TransactionHistory(props) {
         <>
             <h2>Transaction history</h2>
 
-            {requisitions.length > 0 && (
+
+            {!!!requisitions.length && (
+                <strong>No Banks Selected, connect a bank to see your transactions.</strong>
+            )}
+            {!!requisitions.length && (
                 <>
                     <p>Selected banks:</p>
                     {requisitions.map(item => (
@@ -504,9 +515,14 @@ function TransactionHistory(props) {
                 </>
             )}
 
-            {transactions.length == 0 && <p>Loading transactions...</p>}
+            {!!!transactions.length && <p>
+                <div class="spinner-border spinner-border-sm me-1" role="status">
+                    <span class="visually-hidden"></span>
+                </div>
+                Loading transactions or no transactions to load...
+            </p>}
 
-            {transactions.length > 0 && (
+            {!!transactions.length && (
                 <div style={{ overflowX: "scroll", overflowY: "scroll", maxHeight: "400px" }}>
                     <table class="table table-striped table-hover">
                         <thead>
@@ -535,8 +551,6 @@ function TransactionHistory(props) {
 }
 
 function GoogleDiagrams(props) {
-    google.charts.load('current', { 'packages': ['corechart', 'line'] });
-
     let [months, setMonths] = React.useState([]);
     let [selectedMonth, setSelectedMonth] = React.useState();
     let [monthsData, setMonthsData] = React.useState();
@@ -565,36 +579,34 @@ function GoogleDiagrams(props) {
         }
     }, [screenWidth, height]);
 
-
     React.useEffect(() => {
-        if (months.length && categories.length) {
-
-            //THIS WILL LOAD THE SELECTED PIEDIAGRAM
+        if (months.length) {
             handleChange({ currentTarget: { value: months[0] } });
-
-            //THIS LOADS THE BAR DIAGRAM
-            drawLineGraph();
-
-            //THIS LOADS THE LINE CATEGORY GRAPH
-            drawBarDiagram();
         }
-    }, [months, categories]);
-
+    }, [months]);
 
     React.useEffect(() => {
-        if (months.length > 0) {
-            let allDivs = document.querySelectorAll(".montly-category-spending");
-            allDivs.forEach(item => {
+        if (selectedMonth) {
+            let divsToHide = document.querySelectorAll(`.montly-category-spending:not(#${selectedMonth})`);
+            divsToHide.forEach(item => {
                 item.classList.add("d-none");
             });
 
             let div = document.querySelector("#" + selectedMonth);
-            
+
             div.classList.remove("d-none");
-            drawPieDiagram(selectedMonth);
         }
     }, [selectedMonth]);
 
+    React.useEffect(() => {
+        if (months.length && categories.length && selectedMonth) {
+            google.charts.load('current', { 'packages': ['corechart', 'line'] , 'callback': () => {
+                drawLineGraph();
+                drawBarDiagram();
+                drawPieDiagram(selectedMonth);
+            }});      
+        }
+    }, [months, categories, selectedMonth]);
 
     function refresh() {
         loadSpendingData();
@@ -722,16 +734,31 @@ function GoogleDiagrams(props) {
 
     return (
         <>
-            <div id="google-pie-chart" class="col-12 col-lg-4 p-0">
-                {months.map(item => <div id={item} class="montly-category-spending p-0" style={{ height: height }}></div>)}
-                <select value={selectedMonth} onChange={handleChange} class="form-select">
-                    {months.map(item => (
-                        <option value={item}>{item.replace('-', ' ')}</option>
-                    ))}
-                </select>
-            </div>
-            <div id="google-curve-chart" class="col-12 col-lg-4 p-0" style={{ height: height }}></div>
-            <div id="google-stacked-bar-chart" class="col-12 col-lg-4 p-0" style={{ height: height }}></div>
+            {!!months.length && (
+                <>
+                    <div id="google-pie-chart" class="col-12 col-lg-4 p-0">
+                        {months.map(item => <div id={item} class="montly-category-spending p-0" style={{ height: height }}></div>)}
+                        <select value={selectedMonth} onChange={handleChange} class="form-select">
+                            {months.map(item => (
+                                <option value={item}>{item.replace('-', ' ')}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div id="google-curve-chart" class="col-12 col-lg-4 p-0" style={{ height: height }}></div>
+                    <div id="google-stacked-bar-chart" class="col-12 col-lg-4 p-0" style={{ height: height }}></div>
+                </>
+            )}
+            {!!!months.length && (
+
+                <p>
+                    <div class="spinner-border spinner-border-sm me-1" role="status">
+                        <span class="visually-hidden"></span>
+                    </div>
+                    Loading graphs...
+                </p>
+
+            )}
+
         </>
     );
 }
@@ -748,8 +775,8 @@ function App() {
 
     return (
         <>
-            {!tokensLoaded && <a>Loading...</a>}
-            {tokensLoaded && (
+            {!!!tokensLoaded && <a>Loading tokens...</a>}
+            {!!tokensLoaded && (
                 <>
                     <div id="google-charts" class="container-fluid row p-0 m-0">
                         <GoogleDiagrams setGoogleDiagramsRefresh={setGoogleDiagramsRefresh} />
