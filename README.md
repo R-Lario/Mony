@@ -2,6 +2,19 @@
 
 In this file I'll be describing what I've made and what files do what.
 
+## Distinctiveness and Complexity
+I think this project is good, because it satisfies all the requirements.
+It has JavaScript on the front-end, Django on the back-end and is mobile-responsive. I was forced to learn React to make this web-app, learn how to make a REST backend API with Django and also learn Nordigen's API and how it worked.
+It was definitely challenging, because it was the first time coding with these resources.
+
+## How to run Mony
+Make a Nordigen account here -> https://nordigen.com/en/.
+Sign up for an account and create an secret ID and secret KEY here -> https://ob.nordigen.com/user-secrets/
+Once you have the secret id and secret key you need to set them to the environment variables before running Mony.
+With a linux terminal you can do *export secret_id=YOUR_SECRET_ID* and *export secret_key=YOUR_SECRET_KEY*. 
+Now you should be able to run the web-app Mony.
+
+
 ## What I've made
 I've made a personal finance app using React for the front-end, Django for the backend and Nordigen banking API.
 This webapp is made to have quick and easy insights in your monthly spendings. 
