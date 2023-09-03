@@ -1,2 +1,6 @@
 djangorestframework
 requests
+django
+os
+sys
+json
